@@ -1294,6 +1294,7 @@ static void points_callback(const sensor_msgs::PointCloud2::ConstPtr& input)
     transform.setOrigin(tf::Vector3(current_pose.x, current_pose.y, current_pose.z));
     transform.setRotation(current_q);
     //    br.sendTransform(tf::StampedTransform(transform, current_scan_time, "/map", "/base_link"));
+    //发布了map和base_link之间的转换.
     if (_use_local_transform == true)
     {
       br.sendTransform(tf::StampedTransform(local_transform * transform, current_scan_time, "/map", "/base_link"));
