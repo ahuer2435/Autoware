@@ -403,6 +403,8 @@ static void param_callback(const autoware_msgs::ConfigNdt::ConstPtr& input)
   }
 }
 
+//map_callback
+//使用PCD文件构建点云地图,存储于变量ndt中.
 static void map_callback(const sensor_msgs::PointCloud2::ConstPtr& input)
 {
   // if (map_loaded == 0)
@@ -580,8 +582,10 @@ static void gnss_callback(const geometry_msgs::PoseStamped::ConstPtr& input)
   previous_gnss_time = current_gnss_time;
 }
 
+//参考:https://blog.csdn.net/start_from_scratch/article/details/50762293
 static void initialpose_callback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& input)
 {
+    //lookupTransform()函数获取两个坐标系之间的关系.存放于transform
   tf::TransformListener listener;
   tf::StampedTransform transform;
   try
@@ -1469,6 +1473,8 @@ static void points_callback(const sensor_msgs::PointCloud2::ConstPtr& input)
   }
 }
 
+//按照频率10hz,调用回调函数map_callback.
+//不太明白为啥使用ros::CallbackQueue.
 void* thread_func(void* args)
 {
   ros::NodeHandle nh_map;
@@ -1509,6 +1515,12 @@ int main(int argc, char** argv)
   private_nh.getParam("use_gnss", _use_gnss);
   private_nh.getParam("queue_size", _queue_size);
   private_nh.getParam("offset", _offset);
+
+  private_nh.getParam("use_openmp", _use_openmp);
+  private_nh.getParam("use_gpu", _use_gpu);
+  //默认是false,使用ndt算法.
+  private_nh.getParam("use_fast_pcl", _use_fast_pcl);
+
   private_nh.getParam("get_height", _get_height);
   private_nh.getParam("use_local_transform", _use_local_transform);
   private_nh.getParam("use_imu", _use_imu);

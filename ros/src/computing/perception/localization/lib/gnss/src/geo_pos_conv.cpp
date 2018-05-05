@@ -189,6 +189,7 @@ void geo_pos_conv::set_plane(int num)
   }
 
   // swap longitude and latitude
+  //m_PLo和m_PLato也是一种经纬度的表示方法.相当于坐标系原点坐标,坐标系map?
   m_PLo = M_PI * ((double)lat_deg + (double)lat_min / 60.0) / 180.0;
   m_PLato = M_PI * ((double)lon_deg + (double)lon_min / 60.0) / 180;
 }
@@ -201,6 +202,8 @@ void geo_pos_conv::set_xyz(double cx, double cy, double cz)
   conv_xyz2llh();
 }
 
+// 角度格式转化:1234.56 -> 12'34.56 -> 12+ 34.56/60
+// 处理经纬度格式的不一致.
 void geo_pos_conv::set_llh_nmea_degrees(double latd, double lond, double h)
 {
   double lat, lad, lod, lon;
@@ -219,6 +222,7 @@ void geo_pos_conv::set_llh_nmea_degrees(double latd, double lond, double h)
   conv_llh2xyz();
 }
 
+//将经纬度参数先转化为弧度,再转化为位置坐标.
 void geo_pos_conv::llh_to_xyz(double lat, double lon, double ele)
 {
   m_lat = lat * M_PI / 180;
@@ -228,6 +232,8 @@ void geo_pos_conv::llh_to_xyz(double lat, double lon, double ele)
   conv_llh2xyz();
 }
 
+//将经纬度坐标转化为一种空间直角坐标下位置坐标,这种坐标系是一种日本使用的坐标系,广义上可以看成utm坐标系.
+//具体参考:http://sanvarie.hatenablog.com/entry/2015/12/30/182723
 void geo_pos_conv::conv_llh2xyz(void)
 {
   double PS;   //
