@@ -34,6 +34,7 @@
 namespace gnss_localizer
 {
 // Constructor
+//设置map坐标系和gps坐标系名字.
 Nmea2TFPoseNode::Nmea2TFPoseNode()
   : private_nh_("~")
   , MAP_FRAME_("map")
@@ -58,6 +59,7 @@ Nmea2TFPoseNode::~Nmea2TFPoseNode()
 void Nmea2TFPoseNode::initForROS()
 {
   // ros parameter settings
+    //plane_number_ 相当于时区概念,不同时区,其坐标系不同.
   private_nh_.getParam("plane", plane_number_);
 
   // setup subscriber
@@ -72,6 +74,7 @@ void Nmea2TFPoseNode::run()
   ros::spin();
 }
 
+//发布gps在map坐标系下的位置.
 void Nmea2TFPoseNode::publishPoseStamped()
 {
   geometry_msgs::PoseStamped pose;
@@ -84,6 +87,7 @@ void Nmea2TFPoseNode::publishPoseStamped()
   pub1_.publish(pose);
 }
 
+//发布MAP_FRAME_和GPS_FRAME_的转化tf关系.
 void Nmea2TFPoseNode::publishTF()
 {
   tf::Transform transform;
@@ -94,6 +98,7 @@ void Nmea2TFPoseNode::publishTF()
   br_.sendTransform(tf::StampedTransform(transform, current_time_, MAP_FRAME_, GPS_FRAME_));
 }
 
+//前后两个位置的夹角.
 void Nmea2TFPoseNode::createOrientation()
 {
   yaw_ = atan2(geo_.x() - last_geo_.x(), geo_.y() - last_geo_.y());
@@ -101,6 +106,10 @@ void Nmea2TFPoseNode::createOrientation()
   pitch_ = 0;
 }
 
+/*
+ * 从原始gps数据中提取经纬度和高度,传入set_llh_nmea_degrees()函数.
+ * 将gps定位信息转化为以m_PLo,m_PLato为map坐标原点的位置信息.
+*/
 void Nmea2TFPoseNode::convert(std::vector<std::string> nmea, ros::Time current_stamp)
 {
   try
@@ -146,6 +155,7 @@ void Nmea2TFPoseNode::convert(std::vector<std::string> nmea, ros::Time current_s
   }
 }
 
+//根据收到的新旧数据对比,判断是否手工更新朝向.
 void Nmea2TFPoseNode::callbackFromNmeaSentence(const nmea_msgs::Sentence::ConstPtr &msg)
 {
   current_time_ = msg->header.stamp;
