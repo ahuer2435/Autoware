@@ -35,7 +35,7 @@ execute_process(
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 if ("${ROS_VERSION}" MATCHES "(kinetic)")
-	pkg_check_modules(OpenCV REQUIRED opencv-3.2.0-dev)
+	pkg_check_modules(OpenCV REQUIRED opencv-3.3.1-dev)
 else()
 	pkg_check_modules(OpenCV REQUIRED)
 endif()
