@@ -62,12 +62,21 @@ static std::string filename;
 static std::string POINTS_TOPIC;
 static double measurement_range = MAX_MEASUREMENT_RANGE;
 
+
+//设置像素网格大小和测量距离
 static void config_callback(const autoware_msgs::ConfigVoxelGridFilter::ConstPtr& input)
 {
   voxel_leaf_size = input->voxel_leaf_size;
   measurement_range = input->measurement_range;
 }
 
+/*
+ * 1. 将sensor_msgs::PointCloud2形式的点云数据转化为pcl::PointCloud形式scan：pcl::fromROSMsg(*input, scan)
+ * 2. 利用pcl::VoxelGrid<pcl::PointXYZI> voxel_grid_filter对scan进行下采样，滤波。
+ * 3. 将滤波后的数据转化为sensor_msgs::PointCloud2形式filtered_msg：pcl::toROSMsg(*scan_ptr, filtered_msg);
+ * 4. 发布数据和滤波信息。
+ * 对原始的激光雷达信息进行一层滤波处理。
+*/
 static void scan_callback(const sensor_msgs::PointCloud2::ConstPtr& input)
 {
   pcl::PointCloud<pcl::PointXYZI> scan;

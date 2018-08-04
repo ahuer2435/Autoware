@@ -885,6 +885,7 @@ static void imu_callback(const sensor_msgs::Imu::Ptr& input)
 
 static void points_callback(const sensor_msgs::PointCloud2::ConstPtr& input)
 {
+    //地图已经加载，初始位置已经设置（可以通过gps数据或者initialpose_callback设置）
   if (map_loaded == 1 && init_pos_set == 1)
   {
     matching_start = std::chrono::system_clock::now();
@@ -931,6 +932,7 @@ static void points_callback(const sensor_msgs::PointCloud2::ConstPtr& input)
 #endif
 
     // Guess the initial gross estimation of the transformation
+    //offset_x来自于gps的数据更新
     predict_pose.x = previous_pose.x + offset_x;
     predict_pose.y = previous_pose.y + offset_y;
     predict_pose.z = previous_pose.z + offset_z;
@@ -938,12 +940,14 @@ static void points_callback(const sensor_msgs::PointCloud2::ConstPtr& input)
     predict_pose.pitch = previous_pose.pitch;
     predict_pose.yaw = previous_pose.yaw + offset_yaw;
 
+    //融入编码器和imu，里程信息
     if (_use_imu == true && _use_odom == true)
       imu_odom_calc(current_scan_time);
     if (_use_imu == true && _use_odom == false)
       imu_calc(current_scan_time);
     if (_use_imu == false && _use_odom == true)
       odom_calc(current_scan_time);
+
 
     pose predict_pose_for_ndt;
     if (_use_imu == true && _use_odom == true)
@@ -955,6 +959,7 @@ static void points_callback(const sensor_msgs::PointCloud2::ConstPtr& input)
     else
       predict_pose_for_ndt = predict_pose;
 
+    //predict_pose_for_ndt:包含imu，编码器，gps传感器预测的位置信息,融合到转变矩阵:init_guess
     Eigen::Translation3f init_translation(predict_pose_for_ndt.x, predict_pose_for_ndt.y, predict_pose_for_ndt.z);
     Eigen::AngleAxisf init_rotation_x(predict_pose_for_ndt.roll, Eigen::Vector3f::UnitX());
     Eigen::AngleAxisf init_rotation_y(predict_pose_for_ndt.pitch, Eigen::Vector3f::UnitY());
@@ -1479,6 +1484,7 @@ int main(int argc, char** argv)
   ros::NodeHandle private_nh("~");
 
   // Set log file name.
+  //C++11获取当前时间
   char buffer[80];
   std::time_t now = std::time(NULL);
   std::tm* pnow = std::localtime(&now);
@@ -1487,14 +1493,15 @@ int main(int argc, char** argv)
   ofs.open(filename.c_str(), std::ios::app);
 
   // Geting parameters
+  //这些参数在文件ndt_matching.launch中配置。
   private_nh.getParam("use_gnss", _use_gnss);
   private_nh.getParam("queue_size", _queue_size);
   private_nh.getParam("offset", _offset);
   private_nh.getParam("use_openmp", _use_openmp);
   private_nh.getParam("use_gpu", _use_gpu);
   //默认是false,使用ndt算法.
-  private_nh.getParam("use_fast_pcl", _use_fast_pcl);
-  private_nh.getParam("get_height", _get_height);
+  private_nh.getParam("use_fast_pcl", _use_fast_pcl);       //false
+  private_nh.getParam("get_height", _get_height);           //false
   private_nh.getParam("use_local_transform", _use_local_transform);
   private_nh.getParam("use_imu", _use_imu);
   private_nh.getParam("use_odom", _use_odom);
@@ -1509,6 +1516,7 @@ int main(int argc, char** argv)
   }
 #endif
 
+  //在src/util/packages/runtime_manager/scripts/setup.yaml中设置
   if (nh.getParam("localizer", _localizer) == false)
   {
     std::cout << "localizer is not set." << std::endl;
@@ -1568,7 +1576,7 @@ int main(int argc, char** argv)
   Eigen::AngleAxisf rot_x_btol(_tf_roll, Eigen::Vector3f::UnitX());  // rot: rotation
   Eigen::AngleAxisf rot_y_btol(_tf_pitch, Eigen::Vector3f::UnitY());
   Eigen::AngleAxisf rot_z_btol(_tf_yaw, Eigen::Vector3f::UnitZ());
-  tf_btol = (tl_btol * rot_z_btol * rot_y_btol * rot_x_btol).matrix();
+  tf_btol = (tl_btol * rot_z_btol * rot_y_btol * rot_x_btol).matrix();          //一个变换矩阵，应该是一个坐标系在另一个坐标系下的姿态
 
   // Updated in initialpose_callback or gnss_callback
   initial_pose.x = 0.0;
@@ -1596,7 +1604,7 @@ int main(int argc, char** argv)
 
   // Subscribers
   ros::Subscriber param_sub = nh.subscribe("config/ndt", 10, param_callback);
-  ros::Subscriber gnss_sub = nh.subscribe("gnss_pose", 10, gnss_callback);
+  ros::Subscriber gnss_sub = nh.subscribe("gnss_pose", 10, gnss_callback);              //订阅gps在map坐标系下的坐标
   //  ros::Subscriber map_sub = nh.subscribe("points_map", 10, map_callback);
   ros::Subscriber initialpose_sub = nh.subscribe("initialpose", 1000, initialpose_callback);
   ros::Subscriber points_sub = nh.subscribe("filtered_points", _queue_size, points_callback);   //订阅激光雷达数据.

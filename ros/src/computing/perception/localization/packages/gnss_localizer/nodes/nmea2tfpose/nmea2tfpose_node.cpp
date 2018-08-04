@@ -33,6 +33,11 @@
 
 #include "nmea2tfpose_core.h"
 
+/*
+ * 构建map和gps坐标系，发布坐标系转换关系和位置信息。
+ * 这里的map坐标系是以日本一种当地坐标系转化的。
+*/
+
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "nmea2tfpose");
