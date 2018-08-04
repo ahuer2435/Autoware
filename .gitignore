@@ -43,6 +43,7 @@ ENV/
 
 # Autoware Resources
 *.pcd
-*.bag
 *.csv
 
+/frames.pdf
+*.gitignore
