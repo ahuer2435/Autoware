@@ -28,6 +28,11 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/*
+* 针对的是m/s这种速度优化，输入与输出都是这种形式。
+* 与https://github.com/CPFL/Autoware/issues/1677 不一致，没有优化steer_cmd
+*/
+
 #include <ros/ros.h>
 #include <geometry_msgs/TwistStamped.h>
 

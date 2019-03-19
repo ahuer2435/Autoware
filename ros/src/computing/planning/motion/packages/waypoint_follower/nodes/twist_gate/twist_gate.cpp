@@ -48,6 +48,11 @@
 #include "autoware_msgs/steer_cmd.h"
 #include "autoware_msgs/ControlCommandStamped.h"
 
+/*
+* 自动驾驶模式和远程控制模式的仲裁。
+* 这里的输入速度有m/s，也有steer形式，steer远程可发，其他是从对应话题获取，对应话题的而发布者未知。一般都是m/s形式。
+*/
+
 class TwistGate
 {
   using remote_msgs_t = autoware_msgs::RemoteCmd;
