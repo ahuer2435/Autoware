@@ -2,6 +2,223 @@
 Changelog for package runtime_manager
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.10.0 (2019-01-17)
+-------------------
+* Switch to Apache 2 license (develop branch) (`#1741 <https://github.com/kfunaoka/Autoware/issues/1741>`_)
+  * Switch to Apache 2
+  * Replace BSD-3 license header with Apache 2 and reassign copyright to the
+  Autoware Foundation.
+  * Update license on Python files
+  * Update copyright years
+  * Add #ifndef/define _POINTS_IMAGE_H\_
+  * Updated license comment
+* Use colcon as the build tool (`#1704 <https://github.com/kfunaoka/Autoware/issues/1704>`_)
+  * Switch to colcon as the build tool instead of catkin
+  * Added cmake-target
+  * Added note about the second colcon call
+  * Added warning about catkin* scripts being deprecated
+  * Fix COLCON_OPTS
+  * Added install targets
+  * Update Docker image tags
+  * Message packages fixes
+  * Fix missing dependency
+* [Fix] Disable forced termination when it can not write log data in ndt_matching (`#1824 <https://github.com/kfunaoka/Autoware/issues/1824>`_)
+* [feature] Initial integration of Boson FLIR ADK camera driver for Autoware (`#1809 <https://github.com/kfunaoka/Autoware/issues/1809>`_)
+  * Initial integration of Boson FLIR ADK camera driver for Autoware
+  * Added README description for Boson FLIR ADK
+* Feature/lgsvl sim (`#1795 <https://github.com/kfunaoka/Autoware/issues/1795>`_)
+  * add bridge package
+  * add setup script
+  * add getPath
+  * add roslib depends
+  * add launch files
+  * add install in CMakeLists.txt
+  * add description
+  * fix .gitignore
+  * remove launcher node and add launch shell script
+  * add nmea2tfpose to the launch file
+  * update simulation.yaml
+  * update runtime manger
+  * enable use runtime manager button
+  * update setup script
+  * add lgsvl_msgs as a submodule
+  * update Dockerfile
+  * update runtime manager
+  * update crossbuild docker image
+  * update git ignore
+  * update .travis.yml
+  * remove unused launch file
+  * update CMakeLists.txt
+  * update README.md
+  * update README.md
+* Feature/perception visualization cleanup (`#1648 <https://github.com/kfunaoka/Autoware/issues/1648>`_)
+  * * Initial commit for visualization package
+  * Removal of all visualization messages from perception nodes
+  * Visualization dependency removal
+  * Launch file modification
+  * * Fixes to visualization
+  * Error on Clustering CPU
+  * Reduce verbosity on markers
+  * intial commit
+  * * Changed to 2 spaces indentation
+  * Added README
+  * Fixed README messages type
+  * 2 space indenting
+  * ros clang format
+  * Publish acceleration and velocity from ukf tracker
+  * Remove hardcoded path
+  * Updated README
+  * updated prototype
+  * Prototype update for header and usage
+  * Removed unknown label from being reported
+  * Updated publishing orientation to match develop
+  * * Published all the trackers
+  * Added valid field for visualization and future compatibility with ADAS ROI filtering
+  * Add simple functions
+  * Refacor code
+  * * Reversed back UKF node to develop
+  * Formatted speed
+  * Refactor codes
+  * Refactor codes
+  * Refactor codes
+  * Refacor codes
+  * Make tracking visualization work
+  * Relay class info in tracker node
+  * Remove dependency to jskbbox and rosmarker in ukf tracker
+  * apply rosclang to ukf tracker
+  * Refactor codes
+  * Refactor codes
+  * add comment
+  * refactor codes
+  * Revert "Refactor codes"
+  This reverts commit 135aaac46e49cb18d9b76611576747efab3caf9c.
+  * Revert "apply rosclang to ukf tracker"
+  This reverts commit 4f8d1cb5c8263a491f92ae5321e5080cb34b7b9c.
+  * Revert "Remove dependency to jskbbox and rosmarker in ukf tracker"
+  This reverts commit 4fa1dd40ba58065f7afacc5e478001078925b27d.
+  * Revert "Relay class info in tracker node"
+  This reverts commit 1637baac44c8d3d414cc069f3af12a79770439ae.
+  * delete dependency to jsk and remove pointcloud_frame
+  * get direction nis
+  * set velocity_reliable true in tracker node
+  * Add divided function
+  * add function
+  * Sanity checks
+  * Relay all the data from input DetectedObject
+  * Divided function work both for immukf and sukf
+  * Add comment
+  * Refactor codes
+  * Pass immukf test
+  * make direction assisted tracking work
+  * Visualization fixes
+  * Refacor codes
+  * Refactor codes
+  * Refactor codes
+  * refactor codes
+  * refactor codes
+  * Refactor codes
+  * refactor codes
+  * Tracker Merging step added
+  * Added launch file support for merging phase
+  * lane assisted with sukf
+  * Refactor codes
+  * Refactor codes
+  * * change only static objects
+  * keep label of the oldest tracker
+  * Static Object discrimination
+  * Non rotating bouding box
+  * no disappear if detector works
+  * Modify removeRedundant a bit
+  * Replacement of JSK visualization for RViz Native Markers
+  * Added Models namespace to visualization
+  * Naming change for matching the perception component graph
+  * * Added 3D Models for different classes in visualization
+  * 2D Rect node visualize_rects added to visualization_package
+* Feature/ouster (`#1748 <https://github.com/kfunaoka/Autoware/issues/1748>`_)
+  * Added Ouster OS1 LiDAR driver for Autoware as submodule.
+  * Modified sensing tab to support Ouster OS1 LiDAR configuration and launching from runtime manager.
+  * Updated the UI for Ouster OS1 LiDAR to support individual frame and topic names for cloud and imu, renamed some labels, changed default values of IP addresses
+* Fix Ros/ROS naming convention
+* Fix Kf/KF naming convention
+* Fix Dpm/DPM naming convention
+* Fix Ndt/NDT naming convention
+* Fix Ssd/SSD naming convention
+* Contributors: Abraham Monrroy Cano, Alexander Carballo, Esteve Fernandez, Masaya Kataoka, YamatoAndo
+
+1.9.1 (2018-11-06)
+------------------
+
+1.9.0 (2018-10-31)
+------------------
+* [Fix] Resize RTM UI dialog windows to prevent scrolling (`#1642 <https://github.com/CPFL/Autoware/issues/1642>`_)
+  * Fixes to RTM dialog sizes
+  * Resizing of dialog boxes in the Computing tab.
+  * Resizing of dialog boxes in the Sensing tab.
+  * Extra fixes to UI
+  * Increased Width of ComboBox
+* Moved configuration messages to autoware_config_msgs
+* [fix] Added option to publish to specific camera frame on camera publisher (`#1565 <https://github.com/CPFL/Autoware/issues/1565>`_)
+  * * Added option to publish to specific camera frame on camera publisher
+  * fixes to the node
+  * Added New line to UI on each param.
+  * * Updates to launch files using calibration publisher
+  * Updated naming after develop merge
+  * Updated suscription type to topic for calibration publisher
+* [Feature] Prediction package template (naive_motion_predictor) (`#1616 <https://github.com/CPFL/Autoware/issues/1616>`_)
+* [fix] PascalCase messages (`#1408 <https://github.com/CPFL/Autoware/issues/1408>`_)
+  * Switch message files to pascal case
+  * Switch message names to pascal case in Runtime Manager
+  * Switch message names to pascal case in *.yaml
+  * Rename brake_cmd and steer_cmd to BrakeCmd and SteerCmd in main.yaml
+* [Feature] DetectedObject type immukfpda (`#1582 <https://github.com/CPFL/Autoware/issues/1582>`_)
+* [feature] Selectable topics in RTM (`#1596 <https://github.com/CPFL/Autoware/issues/1596>`_)
+  * * Added functions to support selectable topics
+  * Modified Sensing and computing tabs
+  * Added missing topics in RTM computing section
+* renamed topics to match, sensing workflow (`#1600 <https://github.com/CPFL/Autoware/issues/1600>`_)
+  [fix] renamed topics to match, sensing workflow on CompareMapFilter
+* Changed default input value
+* * Fixed typo
+  * Changed default values
+* Feature/compare map filter (`#1559 <https://github.com/CPFL/Autoware/issues/1559>`_)
+  * add compare map filter
+  * add README
+  * add copyright
+  * change default parameter
+  * fix typo
+  * clang-format
+  * Revert "clang-format"
+  This reverts commit 95869328f35f6ed1e918c26901ad36ab9737e466.
+  * retry clang-format
+* Added support for custom class "names files" in darknet format. (`#1535 <https://github.com/CPFL/Autoware/issues/1535>`_)
+  * Added support for custom class "names files" in darknet format.
+  * Fixed launch file, not including source topic arg
+  * Fix the default path of coco.names (`#1550 <https://github.com/CPFL/Autoware/issues/1550>`_)
+* Feature/beyond pixel tracker (`#1473 <https://github.com/CPFL/Autoware/issues/1473>`_)
+  * Add beyond_pixel node
+  * Update prototype of beyond pixel (`#1430 <https://github.com/CPFL/Autoware/issues/1430>`_)
+  * Add parser of DetectedObjectArray for beyond tracker(`#1430 <https://github.com/CPFL/Autoware/issues/1430>`_)
+  * * Adaptations to the original code
+  * Added README
+  * Added Runtime Manager entry
+  * Added Video link
+  * Added install commands for cmake
+  * * Add ID only to tracked objects
+  * Display valid IDs on the 3D labels
+  * Display only objects with image coords
+  * * Added Minimum dimensions
+  * Register angle from the vision tracker if available
+  * Keep message publishing rate continuous
+  * Revert platform_automation_msgs (`#1498 <https://github.com/CPFL/Autoware/issues/1498>`_)
+  * Code cleanup
+  * Fixed a crash when the dimensions are outside of the image
+  * Fix annoying catkin_make causing to run twice the Cmake generation
+* Feature/robosense lidar driver (`#1500 <https://github.com/CPFL/Autoware/issues/1500>`_)
+  * Add RoboSense Lidar Driver as a submodule
+  * Added robosense lidar support
+* [Feature]naive l shape fitting and a little modification on immukfpda launch file(`#1457 <https://github.com/CPFL/Autoware/issues/1457>`_)
+* Contributors: Abraham Monrroy, Abraham Monrroy Cano, David, Esteve Fernandez, Kosuke Murakami, YamatoAndo, amc-nu
+
 1.8.0 (2018-08-31)
 ------------------
 * Support old behavior of insert static object for obstacle avoidance testing
@@ -46,7 +263,7 @@ Changelog for package runtime_manager
   * * Added Publication of non fused objects
   * Fixed topic names
 * widen app dialog for approximate_ndt_mapping
-* add max_scan_range to ConfigNdtMapping/ConfigApproximateNdtMapping
+* add max_scan_range to ConfigNDTMapping/ConfigApproximateNDTMapping
 * Modify Map loading for OpenPlanner, now it reads from Autoware vector map messages, old behavior still works but from launch file only.
   Delete way_planner, dp_planner from UI, but they still accessible from roslaunch.
 * Fix Vector Map parser problem, tested with three different maps
@@ -585,7 +802,7 @@ Changelog for package runtime_manager
 * Runtime Manager, add booted_cmd to param.yaml and select dialog at boot
 * Runtime Manager, add proc_wait_thread() for async kill proc
 * Runtime Manager, add quit_select() and reload_computing_yaml()
-* Kf Added
+* KF Added
   Euclidean Cluster improved
 * Fixes
 * Added VectorMap Server support
@@ -860,7 +1077,7 @@ Changelog for package runtime_manager
 * created ConfigTwistFilter message
   Conflicts:
   ros/src/util/packages/runtime_manager/scripts/computing.yaml
-* Ros-parameterize all defined value in points2vscan
+* ROS-parameterize all defined value in points2vscan
   Now we can specify parameters value from launch file
 * Fix package name which has velodyne launch files
 * Runtime Manager Map tab, fix pcd load OK msg at filed

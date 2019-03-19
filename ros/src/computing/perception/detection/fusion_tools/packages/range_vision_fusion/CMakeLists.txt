@@ -1,21 +1,23 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(range_vision_fusion)
 
+
+find_package(autoware_build_flags REQUIRED)
+
+find_package(autoware_msgs REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
         cv_bridge
         sensor_msgs
         image_transport
         roscpp
         tf
-        autoware_msgs
-        autoware_build_flags
         jsk_recognition_utils
         eigen_conversions
         tf_conversions
         jsk_topic_tools
         image_geometry
         jsk_topic_tools
-        visualization_msgs
+        autoware_msgs
         )
 
 find_package(OpenCV REQUIRED)
@@ -35,7 +37,10 @@ else ()
     set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
 endif ()
 
-set(CMAKE_CXX_FLAGS "-O2 -Wall ${CMAKE_CXX_FLAGS}")
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
+find_path(YAML_CPP_INCLUDE_DIR NAMES yaml_cpp.h PATHS ${YAML_CPP_INCLUDE_DIRS})
+find_library(YAML_CPP_LIBRARY NAMES YAML_CPP PATHS ${YAML_CPP_LIBRARIES})
 
 catkin_package(
         CATKIN_DEPENDS
@@ -51,7 +56,6 @@ catkin_package(
         jsk_topic_tools
         image_geometry
         jsk_topic_tools
-        visualization_msgs
 )
 
 #fusion Library
@@ -70,10 +74,12 @@ endif ()
 target_include_directories(range_vision_fusion_lib PRIVATE
         ${OpenCV_INCLUDE_DIR}
         ${catkin_INCLUDE_DIRS}
+        ${autoware_msgs_INCLUDE_DIRS}
         ${Boost_INCLUDE_DIRS}
         ${PCL_INCLUDE_DIRS}
         ${EIGEN3_INCLUDE_DIRS}
         ${OPENGL_INCLUDE_DIRS}
+        ${YAML_CPP_INCLUDE_DIRS}
         include
         )
 
@@ -81,6 +87,7 @@ target_link_libraries(range_vision_fusion_lib
         ${OpenCV_LIBRARIES}
         ${EIGEN3_LIBRARIES}
         ${OPENGL_LIBRARIES}
+        ${YAML_CPP_LIBRARIES}
         ${catkin_LIBRARIES}
         )
 
@@ -95,6 +102,7 @@ add_executable(range_vision_fusion
 target_include_directories(range_vision_fusion PRIVATE
         ${OpenCV_INCLUDE_DIR}
         ${catkin_INCLUDE_DIRS}
+        ${autoware_msgs_INCLUDE_DIRS}
         ${Boost_INCLUDE_DIRS}
         include
         )

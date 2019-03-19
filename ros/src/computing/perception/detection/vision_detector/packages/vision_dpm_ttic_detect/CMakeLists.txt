@@ -3,14 +3,18 @@ project(vision_dpm_ttic_detect)
 
 include(FindPkgConfig)
 
+find_package(autoware_msgs REQUIRED)
+
+find_package(autoware_config_msgs REQUIRED)
+
 FIND_PACKAGE(catkin REQUIRED COMPONENTS
-        autoware_build_flags
         cv_bridge
         roscpp
         sensor_msgs
         std_msgs
-        autoware_msgs
         libdpm_ttic
+        autoware_config_msgs
+        autoware_msgs
         )
 
 FIND_PACKAGE(CUDA)
@@ -21,6 +25,7 @@ catkin_package(
         roscpp
         sensor_msgs
         std_msgs
+        autoware_config_msgs
         autoware_msgs
         libdpm_ttic
 )
@@ -32,6 +37,8 @@ catkin_package(
 set(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
 
 include_directories(
+        ${autoware_config_msgs_INCLUDE_DIRS}
+        ${autoware_msgs_INCLUDE_DIRS}
         ${catkin_INCLUDE_DIRS}
 )
 

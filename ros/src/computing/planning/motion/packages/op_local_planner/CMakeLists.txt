@@ -3,11 +3,14 @@ project(op_local_planner)
 set(ROS_VERSION $ENV{ROS_DISTRO})
 
 
+
+find_package(autoware_build_flags REQUIRED)
+
+find_package(vector_map_msgs REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
-  autoware_build_flags
   roscpp
   geometry_msgs
-  autoware_msgs  
+  autoware_can_msgs
   map_file
   pcl_conversions
   pcl_ros
@@ -19,7 +22,6 @@ find_package(catkin REQUIRED COMPONENTS
   op_simu  
   op_ros_helpers
   waypoint_follower
-  vector_map_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -31,7 +33,16 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES 
-  CATKIN_DEPENDS roscpp geometry_msgs autoware_msgs map_file op_utility op_planner op_simu op_ros_helpers waypoint_follower 
+  CATKIN_DEPENDS
+  roscpp
+  geometry_msgs
+  autoware_can_msgs
+  map_file
+  op_utility
+  op_planner
+  op_simu
+  op_ros_helpers
+  waypoint_follower
 #  DEPENDS system_lib
 )
 
@@ -47,6 +58,7 @@ endif()
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${vector_map_INCLUDE_DIRS}
 )
 
 link_directories(lib)

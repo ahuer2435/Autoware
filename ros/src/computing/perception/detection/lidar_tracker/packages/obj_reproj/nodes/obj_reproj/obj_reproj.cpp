@@ -1,35 +1,17 @@
 /*
- *  Copyright (c) 2015, Nagoya University
- *  All rights reserved.
+ * Copyright 2015-2019 Autoware Foundation. All rights reserved.
  *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions are met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  * Redistributions of source code must retain the above copyright notice,
- * this
- *    list of conditions and the following disclaimer.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither the name of Autoware nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE
- *  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- *  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- *  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- *  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY,
- *  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE
- *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #include <ros/ros.h>
@@ -53,9 +35,9 @@
 #include "cal_obj_loc.h"
 #include "calcoordinates.h"
 #include "structure.h"
-#include <autoware_msgs/image_obj_tracked.h>
-#include <autoware_msgs/obj_label.h>
-#include <autoware_msgs/projection_matrix.h>
+#include <autoware_msgs/ImageObjTracked.h>
+#include <autoware_msgs/ObjLabel.h>
+#include <autoware_msgs/ProjectionMatrix.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <mutex>
@@ -117,7 +99,7 @@ static tf::StampedTransform transformCam2Map;
 std::string camera_id_str;
 
 static visualization_msgs::MarkerArray
-convert_marker_array(const autoware_msgs::obj_label &src) {
+convert_marker_array(const autoware_msgs::ObjLabel &src) {
   visualization_msgs::MarkerArray ret;
   int index = 0;
   std_msgs::ColorRGBA color_red;
@@ -188,7 +170,7 @@ convert_marker_array(const autoware_msgs::obj_label &src) {
 }
 
 static jsk_recognition_msgs::BoundingBoxArray
-convertJskBoundingBoxArray(const autoware_msgs::obj_label &src) {
+convertJskBoundingBoxArray(const autoware_msgs::ObjLabel &src) {
   jsk_recognition_msgs::BoundingBoxArray ret;
   ret.header.frame_id = "map";
 
@@ -208,7 +190,7 @@ convertJskBoundingBoxArray(const autoware_msgs::obj_label &src) {
   return ret;
 }
 
-static void projection_callback(const autoware_msgs::projection_matrix &msg) {
+static void projection_callback(const autoware_msgs::ProjectionMatrix &msg) {
   for (int row = 0; row < 4; row++) {
     for (int col = 0; col < 4; col++) {
       cameraMatrix[row][col] = msg.projection_matrix[row * 4 + col];
@@ -239,7 +221,7 @@ void GetRPY(const geometry_msgs::Pose &pose, double &roll, double &pitch,
 
 void makeSendDataDetectedObj(vector<OBJPOS> car_position_vector,
                              vector<OBJPOS>::iterator cp_iterator,
-                             autoware_msgs::obj_label &send_data) {
+                             autoware_msgs::ObjLabel &send_data) {
   geometry_msgs::Point tmpPoint;
 
   for (uint i = 0; i < car_position_vector.size(); i++, cp_iterator++) {
@@ -283,7 +265,7 @@ void locatePublisher(void) {
   // get values from sample_corner_point , convert latitude and longitude,
   // and send database server.
 
-  autoware_msgs::obj_label obj_label_msg;
+  autoware_msgs::ObjLabel obj_label_msg;
   visualization_msgs::MarkerArray obj_label_marker_msgs;
 
   vector<OBJPOS>::iterator cp_iterator;
@@ -316,7 +298,7 @@ void locatePublisher(void) {
 }
 
 static void
-obj_pos_xyzCallback(const autoware_msgs::image_obj_tracked &fused_objects) {
+obj_pos_xyzCallback(const autoware_msgs::ImageObjTracked &fused_objects) {
   if (!ready_)
     return;
   image_obj_tracked_time = fused_objects.header.stamp;
@@ -394,7 +376,7 @@ int main(int argc, char **argv) {
   ros::Subscriber obj_pos_xyz =
       n.subscribe("image_obj_tracked", 1, obj_pos_xyzCallback);
 
-  pub = n.advertise<autoware_msgs::obj_label>("obj_label", 1);
+  pub = n.advertise<autoware_msgs::ObjLabel>("obj_label", 1);
   marker_pub =
       n.advertise<visualization_msgs::MarkerArray>("obj_label_marker", 1);
 

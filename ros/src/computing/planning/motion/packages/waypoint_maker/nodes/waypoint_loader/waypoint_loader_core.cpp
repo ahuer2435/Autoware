@@ -1,33 +1,18 @@
 /*
- *  Copyright (c) 2015, Nagoya University
-
- *  All rights reserved.
+ * Copyright 2015-2019 Autoware Foundation. All rights reserved.
  *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions are met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  * Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither the name of Autoware nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- *  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- *  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- *  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- *  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include "waypoint_loader_core.h"
 
@@ -61,14 +46,14 @@ void WaypointLoaderNode::initPubSub()
       nh_.subscribe("/config/waypoint_loader_output", 1, &WaypointLoaderNode::outputCommandCallback, this);
 }
 
-void WaypointLoaderNode::initParameter(const autoware_msgs::ConfigWaypointLoader::ConstPtr& conf)
+void WaypointLoaderNode::initParameter(const autoware_config_msgs::ConfigWaypointLoader::ConstPtr& conf)
 {
   // parameter settings
   replanning_mode_ = conf->replanning_mode;
   multi_lane_csv_ = conf->multi_lane_csv;
 }
 
-void WaypointLoaderNode::configCallback(const autoware_msgs::ConfigWaypointLoader::ConstPtr& conf)
+void WaypointLoaderNode::configCallback(const autoware_config_msgs::ConfigWaypointLoader::ConstPtr& conf)
 {
   initParameter(conf);
   replanner_.initParameter(conf);
@@ -116,7 +101,7 @@ void WaypointLoaderNode::createLaneArray(const std::vector<std::string>& paths, 
 {
   for (const auto& el : paths)
   {
-    autoware_msgs::lane lane;
+    autoware_msgs::Lane lane;
     createLaneWaypoint(el, &lane);
     if (replanning_mode_)
     {
@@ -146,7 +131,7 @@ void WaypointLoaderNode::saveLaneArray(const std::vector<std::string>& paths,
   }
 }
 
-void WaypointLoaderNode::createLaneWaypoint(const std::string& file_path, autoware_msgs::lane* lane)
+void WaypointLoaderNode::createLaneWaypoint(const std::string& file_path, autoware_msgs::Lane* lane)
 {
   if (!verifyFileConsistency(file_path.c_str()))
   {
@@ -156,7 +141,7 @@ void WaypointLoaderNode::createLaneWaypoint(const std::string& file_path, autowa
 
   ROS_INFO("lane data is valid. publishing...");
   FileFormat format = checkFileFormat(file_path.c_str());
-  std::vector<autoware_msgs::waypoint> wps;
+  std::vector<autoware_msgs::Waypoint> wps;
   if (format == FileFormat::ver1)
   {
     loadWaypointsForVer1(file_path.c_str(), &wps);
@@ -174,7 +159,7 @@ void WaypointLoaderNode::createLaneWaypoint(const std::string& file_path, autowa
   lane->waypoints = wps;
 }
 
-void WaypointLoaderNode::loadWaypointsForVer1(const char* filename, std::vector<autoware_msgs::waypoint>* wps)
+void WaypointLoaderNode::loadWaypointsForVer1(const char* filename, std::vector<autoware_msgs::Waypoint>* wps)
 {
   std::ifstream ifs(filename);
 
@@ -188,7 +173,7 @@ void WaypointLoaderNode::loadWaypointsForVer1(const char* filename, std::vector<
 
   while (std::getline(ifs, line))
   {
-    autoware_msgs::waypoint wp;
+    autoware_msgs::Waypoint wp;
     parseWaypointForVer1(line, &wp);
     wps->push_back(wp);
   }
@@ -209,7 +194,7 @@ void WaypointLoaderNode::loadWaypointsForVer1(const char* filename, std::vector<
   }
 }
 
-void WaypointLoaderNode::parseWaypointForVer1(const std::string& line, autoware_msgs::waypoint* wp)
+void WaypointLoaderNode::parseWaypointForVer1(const std::string& line, autoware_msgs::Waypoint* wp)
 {
   std::vector<std::string> columns;
   parseColumns(line, &columns);
@@ -220,7 +205,7 @@ void WaypointLoaderNode::parseWaypointForVer1(const std::string& line, autoware_
   wp->twist.twist.linear.x = kmph2mps(std::stod(columns[3]));
 }
 
-void WaypointLoaderNode::loadWaypointsForVer2(const char* filename, std::vector<autoware_msgs::waypoint>* wps)
+void WaypointLoaderNode::loadWaypointsForVer2(const char* filename, std::vector<autoware_msgs::Waypoint>* wps)
 {
   std::ifstream ifs(filename);
 
@@ -234,13 +219,13 @@ void WaypointLoaderNode::loadWaypointsForVer2(const char* filename, std::vector<
 
   while (std::getline(ifs, line))
   {
-    autoware_msgs::waypoint wp;
+    autoware_msgs::Waypoint wp;
     parseWaypointForVer2(line, &wp);
     wps->push_back(wp);
   }
 }
 
-void WaypointLoaderNode::parseWaypointForVer2(const std::string& line, autoware_msgs::waypoint* wp)
+void WaypointLoaderNode::parseWaypointForVer2(const std::string& line, autoware_msgs::Waypoint* wp)
 {
   std::vector<std::string> columns;
   parseColumns(line, &columns);
@@ -252,7 +237,7 @@ void WaypointLoaderNode::parseWaypointForVer2(const std::string& line, autoware_
   wp->twist.twist.linear.x = kmph2mps(std::stod(columns[4]));
 }
 
-void WaypointLoaderNode::loadWaypointsForVer3(const char* filename, std::vector<autoware_msgs::waypoint>* wps)
+void WaypointLoaderNode::loadWaypointsForVer3(const char* filename, std::vector<autoware_msgs::Waypoint>* wps)
 {
   std::ifstream ifs(filename);
 
@@ -269,14 +254,14 @@ void WaypointLoaderNode::loadWaypointsForVer3(const char* filename, std::vector<
   // std::getline(ifs, line);  // remove second line
   while (std::getline(ifs, line))
   {
-    autoware_msgs::waypoint wp;
+    autoware_msgs::Waypoint wp;
     parseWaypointForVer3(line, contents, &wp);
     wps->push_back(wp);
   }
 }
 
 void WaypointLoaderNode::parseWaypointForVer3(const std::string& line, const std::vector<std::string>& contents,
-                                              autoware_msgs::waypoint* wp)
+                                              autoware_msgs::Waypoint* wp)
 {
   std::vector<std::string> columns;
   parseColumns(line, &columns);

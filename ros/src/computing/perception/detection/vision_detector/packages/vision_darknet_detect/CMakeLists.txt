@@ -1,14 +1,20 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(vision_darknet_detect)
 
+
+find_package(autoware_build_flags REQUIRED)
+
+find_package(autoware_msgs REQUIRED)
+
+find_package(autoware_config_msgs REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
-        autoware_build_flags
         cv_bridge
         image_transport
         roscpp
         sensor_msgs
         std_msgs
         autoware_msgs
+        autoware_config_msgs
         )
 
 find_package(CUDA)
@@ -22,6 +28,7 @@ catkin_package(CATKIN_DEPENDS
         sensor_msgs
         std_msgs
         autoware_msgs
+        autoware_config_msgs
         )
 
 set(CMAKE_CXX_FLAGS "-O3 -g -Wall ${CMAKE_CXX_FLAGS}")
@@ -101,6 +108,8 @@ IF (CUDA_FOUND)
     target_include_directories(vision_darknet_detect_lib PRIVATE
             ${OpenCV_INCLUDE_DIR}
             ${catkin_INCLUDE_DIRS}
+            ${autoware_config_msgs_INCLUDE_DIRS}
+            ${autoware_msgs_INCLUDE_DIRS}
             ${Boost_INCLUDE_DIRS}
             ${CUDA_INCLUDE_DIRS}
             ${PROJECT_SOURCE_DIR}/darknet
@@ -134,6 +143,8 @@ IF (CUDA_FOUND)
     target_include_directories(vision_darknet_detect PRIVATE
             ${CUDA_INCLUDE_DIRS}
             ${catkin_INCLUDE_DIRS}
+            ${autoware_config_msgs_INCLUDE_DIRS}
+            ${autoware_msgs_INCLUDE_DIRS}
             ${PROJECT_SOURCE_DIR}/darknet
             ${PROJECT_SOURCE_DIR}/darknet/src
             ${PROJECT_SOURCE_DIR}/src
@@ -155,6 +166,13 @@ IF (CUDA_FOUND)
             LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
             RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
             )
+    install(DIRECTORY launch/
+            DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+            PATTERN ".svn" EXCLUDE)
+
+    install(DIRECTORY darknet/cfg/
+            DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/darknet/cfg/
+            PATTERN ".svn" EXCLUDE)
 ELSE()
     message("darknet won't be built, CUDA was not found.")
 ENDIF ()

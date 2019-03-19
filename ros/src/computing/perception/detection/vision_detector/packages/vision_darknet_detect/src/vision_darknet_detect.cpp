@@ -1,31 +1,17 @@
 /*
- *  Copyright (c) 2018, Nagoya University
- *  All rights reserved.
+ * Copyright 2018-2019 Autoware Foundation. All rights reserved.
  *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions are met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  * Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither the name of Autoware nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- *  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- *  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- *  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- *  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  ********************
  *  v1.0: amc-nu (abrahammonrroy@yahoo.com)
  *
@@ -177,13 +163,19 @@ void Yolo3DetectorNode::convert_rect_to_image_obj(std::vector< RectClassScore<fl
             if (in_objects[i].h < 0)
                 obj.height = 0;
 
-            obj.color.r = colors_[in_objects[i].class_type].val[0];
-            obj.color.g = colors_[in_objects[i].class_type].val[1];
-            obj.color.b = colors_[in_objects[i].class_type].val[2];
-            obj.color.a = 1.0f;
-
             obj.score = in_objects[i].score;
-            obj.label = in_objects[i].GetClassString();
+            if (use_coco_names_)
+            {
+                obj.label = in_objects[i].GetClassString();
+            }
+            else
+            {
+                if (in_objects[i].class_type < custom_names_.size())
+                    obj.label = custom_names_[in_objects[i].class_type];
+                else
+                    obj.label = "unknown";
+            }
+            obj.valid = true;
 
             out_message.objects.push_back(obj);
 
@@ -274,11 +266,23 @@ void Yolo3DetectorNode::image_callback(const sensor_msgs::ImageConstPtr& in_imag
     free(darknet_image_.data);
 }
 
-void Yolo3DetectorNode::config_cb(const autoware_msgs::ConfigSsd::ConstPtr& param)
+void Yolo3DetectorNode::config_cb(const autoware_config_msgs::ConfigSSD::ConstPtr& param)
 {
     score_threshold_ = param->score_threshold;
 }
 
+std::vector<std::string> Yolo3DetectorNode::read_custom_names_file(const std::string& in_names_path)
+{
+    std::ifstream file(in_names_path);
+    std::string str;
+    std::vector<std::string> names;
+    while (std::getline(file, str))
+    {
+        names.push_back(str);
+        std::cout << str <<  std::endl;
+    }
+    return names;
+}
 
 void Yolo3DetectorNode::Run()
 {
@@ -298,7 +302,7 @@ void Yolo3DetectorNode::Run()
     }
 
     std::string network_definition_file;
-    std::string pretrained_model_file;
+    std::string pretrained_model_file, names_file;
     if (private_node_handle.getParam("network_definition_file", network_definition_file))
     {
         ROS_INFO("Network Definition File (Config): %s", network_definition_file.c_str());
@@ -318,6 +322,18 @@ void Yolo3DetectorNode::Run()
         return;
     }
 
+    if (private_node_handle.getParam("names_file", names_file))
+    {
+        ROS_INFO("Names File: %s", names_file.c_str());
+        use_coco_names_ = false;
+        custom_names_ = read_custom_names_file(names_file);
+    }
+    else
+    {
+        ROS_INFO("No Names file was received. Using default COCO names.");
+        use_coco_names_ = true;
+    }
+
     private_node_handle.param<float>("score_threshold", score_threshold_, 0.5);
     ROS_INFO("[%s] score_threshold: %f",__APP_NAME__, score_threshold_);
 
@@ -335,7 +351,7 @@ void Yolo3DetectorNode::Run()
         generateColors(colors_, 80);
     #endif
 
-    publisher_objects_ = node_handle_.advertise<autoware_msgs::DetectedObjectArray>("/detection/vision_objects", 1);
+    publisher_objects_ = node_handle_.advertise<autoware_msgs::DetectedObjectArray>("/detection/image_detector/objects", 1);
 
     ROS_INFO("Subscribing to... %s", image_raw_topic_str.c_str());
     subscriber_image_raw_ = node_handle_.subscribe(image_raw_topic_str, 1, &Yolo3DetectorNode::image_callback, this);

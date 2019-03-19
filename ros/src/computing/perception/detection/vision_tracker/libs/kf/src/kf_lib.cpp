@@ -1,32 +1,18 @@
 /*
- *  Copyright (c) 2015, Nagoya University
- *  All rights reserved.
+ * Copyright 2015-2019 Autoware Foundation. All rights reserved.
  *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions are met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  * Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither the name of Autoware nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- *  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- *  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- *  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- *  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 //ROS STUFF
 #include <ros/ros.h>
@@ -37,10 +23,10 @@
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
-#include <autoware_msgs/ConfigCarKf.h>
-#include <autoware_msgs/image_obj_ranged.h>
+#include <autoware_config_msgs/ConfigCarKF.h>
+#include <autoware_msgs/ImageObjRanged.h>
 
-#include <autoware_msgs/image_obj_tracked.h>
+#include <autoware_msgs/ImageObjTracked.h>
 #include <std_msgs/Header.h>
 
 //TRACKING STUFF
@@ -92,7 +78,7 @@ static bool 		USE_ORB;
 
 static bool 		track_ready_;
 static bool 		detect_ready_;
-static autoware_msgs::image_obj_tracked kf_objects_msg_;
+static autoware_msgs::ImageObjTracked kf_objects_msg_;
 
 struct kstate
 {
@@ -819,7 +805,7 @@ void trackAndDrawObjects(cv::Mat& image, int frameNumber, std::vector<ObjectDete
 
 	//ROS
 	int num = tracked_detections.size();
-	std::vector<autoware_msgs::image_rect_ranged> rect_ranged_array;
+	std::vector<autoware_msgs::ImageRectRanged> rect_ranged_array;
 	std::vector<int> real_data(num,0);
 	std::vector<int> obj_id(num, 0);
 	std::vector<int> lifespan(num, 0);
@@ -828,7 +814,7 @@ void trackAndDrawObjects(cv::Mat& image, int frameNumber, std::vector<ObjectDete
 	for (size_t i = 0; i < tracked_detections.size(); i++)
 	{
 		kstate od = tracked_detections[i];
-		autoware_msgs::image_rect_ranged rect_ranged_;
+		autoware_msgs::ImageRectRanged rect_ranged_;
 
 		//od.rect contains x,y, width, height
 		rectangle(image, od.pos, od.color, 3);
@@ -850,7 +836,7 @@ void trackAndDrawObjects(cv::Mat& image, int frameNumber, std::vector<ObjectDete
 		//ENDROS
 	}
 	//more ros
-	autoware_msgs::image_obj_tracked kf_objects_msg;
+	autoware_msgs::ImageObjTracked kf_objects_msg;
 
 	kf_objects_msg.type = object_type;
 	kf_objects_msg.total_num = num;
@@ -882,12 +868,12 @@ void image_callback(const sensor_msgs::Image& image_source)
 	_counter++;
 }
 
-void detections_callback(autoware_msgs::image_obj_ranged image_objects_msg)
+void detections_callback(autoware_msgs::ImageObjRanged image_objects_msg)
 {
 	if(!detect_ready_)
 	{
 		unsigned int num = image_objects_msg.obj.size();
-		std::vector<autoware_msgs::image_rect_ranged> objects = image_objects_msg.obj;
+		std::vector<autoware_msgs::ImageRectRanged> objects = image_objects_msg.obj;
 		object_type = image_objects_msg.type;
 		image_objects_header = image_objects_msg.header;
 		//points are X,Y,W,H and repeat for each instance
@@ -918,7 +904,7 @@ void detections_callback(autoware_msgs::image_obj_ranged image_objects_msg)
 	publish_if_possible();
 }
 
-static void kf_config_cb(const autoware_msgs::ConfigCarKf::ConstPtr& param)
+static void kf_config_cb(const autoware_config_msgs::ConfigCarKF::ConstPtr& param)
 {
 	if (param->initial_lifespan > 0)
 		INITIAL_LIFESPAN	= param->initial_lifespan;
@@ -962,7 +948,7 @@ int kf_main(int argc, char* argv[])
 	ros::NodeHandle n;
 	ros::NodeHandle private_nh("~");
 
-	image_objects = n.advertise<autoware_msgs::image_obj_tracked>("image_obj_tracked", 1);
+	image_objects = n.advertise<autoware_msgs::ImageObjTracked>("image_obj_tracked", 1);
 
 #if (CV_MAJOR_VERSION == 3)
 	generateColors(_colors, 25);

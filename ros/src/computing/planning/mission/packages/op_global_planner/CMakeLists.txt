@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(op_global_planner)
 
+
+find_package(autoware_build_flags REQUIRED)
+
+find_package(vector_map_msgs REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
 
-  autoware_build_flags
   geometry_msgs
-  vector_map_msgs
   roscpp
   rospy
   std_msgs
@@ -19,7 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
   op_planner
   op_simu
   op_ros_helpers
-  autoware_msgs
+  autoware_can_msgs
 )
 
 
@@ -30,8 +32,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES op_global_planner
-  CATKIN_DEPENDS geometry_msgs vector_map_msgs roscpp rospy std_msgs waypoint_follower op_utility op_planner op_simu op_ros_helpers
-  DEPENDS system_lib
+  CATKIN_DEPENDS geometry_msgs vector_map_msgs roscpp rospy std_msgs waypoint_follower op_utility op_planner op_simu op_ros_helpers autoware_can_msgs
 )
 
 ###########
@@ -41,6 +42,7 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${vector_map_INCLUDE_DIRS}
 )
 
 
