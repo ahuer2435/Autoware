@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+//发布map->gps坐标系关系。
 #include "nmea2tfpose_core.h"
 
 namespace gnss_localizer
