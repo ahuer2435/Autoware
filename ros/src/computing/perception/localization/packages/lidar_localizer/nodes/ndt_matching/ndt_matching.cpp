@@ -1556,12 +1556,6 @@ int main(int argc, char** argv)
   private_nh.getParam("use_gnss", _use_gnss);
   private_nh.getParam("queue_size", _queue_size);
   private_nh.getParam("offset", _offset);
-
-  private_nh.getParam("use_openmp", _use_openmp);
-  private_nh.getParam("use_gpu", _use_gpu);
-  //默认是false,使用ndt算法.
-  private_nh.getParam("use_fast_pcl", _use_fast_pcl);
-
   private_nh.getParam("get_height", _get_height);
   private_nh.getParam("use_local_transform", _use_local_transform);
   private_nh.getParam("use_imu", _use_imu);
@@ -1656,7 +1650,6 @@ int main(int argc, char** argv)
   initial_pose.yaw = 0.0;
 
   // Publishers
-
   predict_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/predict_pose", 10);
   predict_pose_imu_pub = nh.advertise<geometry_msgs::PoseStamped>("/predict_pose_imu", 10);
   predict_pose_odom_pub = nh.advertise<geometry_msgs::PoseStamped>("/predict_pose_odom", 10);
@@ -1688,3 +1681,4 @@ int main(int argc, char** argv)
 
   return 0;
 }
+
